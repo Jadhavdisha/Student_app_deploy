@@ -65,23 +65,30 @@ def register():
 @app.route('/login', methods=["GET", "POST"])
 def login():
     if users is None:
-        flash("Database unavailable. Try again later.", "danger")
+        flash("Database unavailable.", "danger")
         return render_template("login.html")
 
     if request.method == "POST":
         email = request.form.get("email", "").strip().lower()
-        password = request.form.get("password", "")
+        password = request.form.get("password", "").strip()
 
-        user = users.find_one({"email": email, "password": password})
-        if user:
-            session["user_id"] = str(user["_id"])
-            session["user_email"] = user["email"]
-            flash("Logged in successfully.", "success")
-            return redirect('/dashboard')
+        user = users.find_one({"email": email})
+        print("USER FROM DB:", user)   # DEBUG
 
-        flash("Invalid credentials.", "danger")
+        if not user:
+            flash("User not found. Please register.", "danger")
+            return render_template("login.html")
+
+        if user["password"] != password:
+            flash("Wrong password.", "danger")
+            return render_template("login.html")
+
+        session.clear()
+        session["user_id"] = str(user["_id"])
+        return redirect("/dashboard")
 
     return render_template("login.html")
+
 
 # ---------------- DASHBOARD ----------------
 @app.route('/dashboard')
@@ -97,9 +104,15 @@ def dashboard():
         return redirect('/login')
 
     courses = [
-        {"code": "CSE101", "title": "Introduction to CS", "credits": 3},
-        {"code": "MAT102", "title": "Calculus I", "credits": 4},
-        {"code": "PHY103", "title": "Physics I", "credits": 3},
+        {"code": "CSE101", 
+         "title": "Introduction to CS",
+        "credits": 3},
+        {"code": "MAT102",
+          "title": "Calculus I", 
+          "credits": 4},
+        {"code": "PHY103",
+          "title": "Physics I",
+            "credits": 3},
     ]
 
     return render_template("dashboard.html", name=user["name"], courses=courses)
