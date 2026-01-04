@@ -3,13 +3,15 @@ from pymongo import MongoClient
 from bson.objectid import ObjectId
 import os
 import logging
+from werkzeug.middleware.proxy_fix import ProxyFix
 
+# ---------------- BASIC SETUP ----------------
 logging.basicConfig(level=logging.INFO)
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "mysecret")
 
-from werkzeug.middleware.proxy_fix import ProxyFix
+# Fix for Render / HTTPS / reverse proxy
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 app.config.update(
@@ -17,8 +19,9 @@ app.config.update(
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SAMESITE="None"
 )
+app.config["SESSION_COOKIE_DOMAIN"] = None
 
-# MongoDB setup (NO ping at import time)
+# ---------------- MONGODB SETUP ----------------
 MONGO_URL = os.getenv("MONGO_URL")
 client = None
 db = None
@@ -29,12 +32,13 @@ if MONGO_URL:
         client = MongoClient(MONGO_URL, serverSelectionTimeoutMS=5000)
         db = client["student_app"]
         users = db["users"]
-        logging.info("MongoDB client initialized.")
+        logging.info("MongoDB connected successfully.")
     except Exception as e:
-        logging.error("MongoDB initialization failed: %s", e)
+        logging.error("MongoDB connection failed: %s", e)
 else:
     logging.error("MONGO_URL not set.")
 
+# ---------------- ROUTES ----------------
 @app.route('/')
 def index():
     return redirect('/login')
@@ -49,7 +53,7 @@ def register():
     if request.method == "POST":
         name = request.form.get("name", "").strip()
         email = request.form.get("email", "").strip().lower()
-        password = request.form.get("password", "")
+        password = request.form.get("password", "").strip()
 
         if not name or not email or not password:
             flash("All fields are required.", "warning")
@@ -62,7 +66,7 @@ def register():
         users.insert_one({
             "name": name,
             "email": email,
-            "password": password  # hash later
+            "password": password  # hash later if needed
         })
 
         flash("Account created. Please login.", "success")
@@ -82,7 +86,7 @@ def login():
         password = request.form.get("password", "").strip()
 
         user = users.find_one({"email": email})
-        print("USER FROM DB:", user)   # DEBUG
+        print("USER FROM DB:", user)  # debug
 
         if not user:
             flash("User not found. Please register.", "danger")
@@ -98,7 +102,6 @@ def login():
 
     return render_template("login.html")
 
-
 # ---------------- DASHBOARD ----------------
 @app.route('/dashboard')
 def dashboard():
@@ -113,26 +116,42 @@ def dashboard():
         return redirect('/login')
 
     courses = [
-        {"code": "CSE101", 
-         "title": "Introduction to CS",
-        "credits": 3},
-        {"code": "MAT102",
-          "title": "Calculus I", 
-          "credits": 4},
-        {"code": "PHY103",
-          "title": "Physics I",
-            "credits": 3},
+        {
+            "code": "CSE101",
+            "title": "Introduction to CS",
+            "instructor": "Dr. Smith",
+            "credits": 3,
+            "schedule": "Mon-Wed 10:00"
+        },
+        {
+            "code": "MAT102",
+            "title": "Calculus I",
+            "instructor": "Prof. Johnson",
+            "credits": 4,
+            "schedule": "Tue-Thu 09:00"
+        },
+        {
+            "code": "PHY103",
+            "title": "Physics I",
+            "instructor": "Dr. Williams",
+            "credits": 3,
+            "schedule": "Mon-Wed 14:00"
+        }
     ]
 
-    return render_template("dashboard.html", name=user["name"], courses=courses)
+    return render_template(
+        "dashboard.html",
+        name=user.get("name", "Student"),
+        courses=courses
+    )
 
 # ---------------- LOGOUT ----------------
 @app.route('/logout')
 def logout():
     session.clear()
-    flash("Logged out.", "info")
+    flash("Logged out successfully.", "info")
     return redirect('/login')
 
-# Local only
+# ---------------- LOCAL RUN ----------------
 if __name__ == '__main__':
     app.run(debug=True)
