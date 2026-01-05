@@ -1,35 +1,25 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h2>Welcome back, {{ name }} 👋</h2>
-<p>Here's what's happening with your courses today.</p>
+<h2>Welcome, {{ user.name }} 👋</h2>
+<p>Email: {{ user.email }}</p>
 
 <hr>
 
-<h3>Available Courses</h3>
-
-<table class="table table-bordered table-striped">
-    <thead class="table-primary">
-        <tr>
-            <th>Code</th>
-            <th>Title</th>
-            <th>Instructor</th>
-            <th>Credits</th>
-            <th>Schedule</th>
-        </tr>
-    </thead>
-
-    <tbody>
+<h4>Your Courses</h4>
+<table class="table table-bordered">
+    <tr>
+        <th>Code</th>
+        <th>Title</th>
+        <th>Credits</th>
+    </tr>
     {% for c in courses %}
-        <tr>
-            <td>{{ c.code }}</td>
-            <td>{{ c.title }}</td>
-            <td>{{ c.instructor }}</td>
-            <td>{{ c.credits }}</td>
-            <td>{{ c.schedule }}</td>
-        </tr>
+    <tr>
+        <td>{{ c.code }}</td>
+        <td>{{ c.title }}</td>
+        <td>{{ c.credits }}</td>
+    </tr>
     {% endfor %}
-    </tbody>
 </table>
 
 {% endblock %}
