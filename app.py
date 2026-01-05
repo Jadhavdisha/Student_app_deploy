@@ -51,11 +51,44 @@ def dashboard(user_id):
         return redirect("/login")
 
     courses = [
-        {"code": "CSE101", "title": "Intro to CS", "credits": 3},
-        {"code": "MAT102", "title": "Calculus I", "credits": 4},
-        {"code": "PHY103", "title": "Physics I", "credits": 3},
+        {
+            "code": "CSE101",
+            "title": "Introduction to Computer Science",
+            "credits": 3,
+            "instructor": "Dr. Smith",
+            "semester": "Semester 1",
+            "attendance": 92,
+            "grade": "A",
+            "status": "Completed"
+        },
+        {
+            "code": "MAT102",
+            "title": "Calculus I",
+            "credits": 4,
+            "instructor": "Prof. Johnson",
+            "semester": "Semester 1",
+            "attendance": 85,
+            "grade": "B+",
+            "status": "Ongoing"
+        },
+        {
+            "code": "PHY103",
+            "title": "Physics I",
+            "credits": 3,
+            "instructor": "Dr. Williams",
+            "semester": "Semester 1",
+            "attendance": 78,
+            "grade": "B",
+            "status": "Ongoing"
+        }
     ]
-    return render_template("dashboard.html", user=user, courses=courses)
+
+    return render_template(
+        "dashboard.html",
+        user=user,
+        courses=courses
+    )
+
 
 # -------- Logout --------
 @app.route("/logout")

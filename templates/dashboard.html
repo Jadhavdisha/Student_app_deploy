@@ -1,43 +1,104 @@
 {% extends "base.html" %}
 {% block content %}
 
+<!-- STUDENT PROFILE -->
 <div class="row mb-4">
-    <div class="col">
+    <div class="col-md-8">
         <div class="card p-4">
-            <h2 class="mb-1">Hello, {{ user.name }} 👋</h2>
-            <p class="text-muted mb-0">Email: {{ user.email }}</p>
+            <h2>Welcome, {{ user.name }} 👋</h2>
+            <p class="mb-1 text-muted">Email: {{ user.email }}</p>
+            <p class="text-muted">Program: B.Tech – Computer Science</p>
+        </div>
+    </div>
+
+    <!-- GPA SUMMARY -->
+    <div class="col-md-4">
+        <div class="card p-4 text-center">
+            <h6 class="text-muted">Academic Performance</h6>
+            <h2 class="fw-bold">GPA: 8.4</h2>
+            <p class="mb-0">Credits Earned: {{ courses | sum(attribute='credits') }}</p>
         </div>
     </div>
 </div>
 
-<div class="row">
-    <div class="col">
-        <div class="card p-4">
-            <h4 class="mb-3">📚 Enrolled Courses</h4>
+<!-- COURSE TABLE -->
+<div class="card p-4 mb-4">
+    <h4 class="mb-3">📚 Course Details</h4>
 
-            <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Course Code</th>
-                            <th>Course Title</th>
-                            <th>Credits</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for c in courses %}
-                        <tr>
-                            <td class="fw-semibold">{{ c.code }}</td>
-                            <td>{{ c.title }}</td>
-                            <td>{{ c.credits }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Code</th>
+                    <th>Title</th>
+                    <th>Instructor</th>
+                    <th>Semester</th>
+                    <th>Credits</th>
+                    <th>Attendance</th>
+                    <th>Grade</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
 
-        </div>
+            <tbody>
+                {% for c in courses %}
+                <tr>
+                    <td class="fw-semibold">{{ c.code }}</td>
+                    <td>{{ c.title }}</td>
+                    <td>{{ c.instructor }}</td>
+                    <td>{{ c.semester }}</td>
+                    <td>{{ c.credits }}</td>
+                    <td>{{ c.attendance }}%</td>
+                    <td>{{ c.grade }}</td>
+                    <td>
+                        {% if c.status == "Completed" %}
+                            <span class="badge bg-success">Completed</span>
+                        {% else %}
+                            <span class="badge bg-primary">Ongoing</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
+</div>
+
+<!-- COURSE ENROLLMENT -->
+<div class="card p-4 mb-4">
+    <h4 class="mb-3">📝 Course Enrollment</h4>
+
+    <form>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <input class="form-control" placeholder="Course Code">
+            </div>
+            <div class="col-md-6 mb-3">
+                <input class="form-control" placeholder="Course Title">
+            </div>
+        </div>
+        <button class="btn btn-primary">Request Enrollment</button>
+        <small class="text-muted d-block mt-2">
+            * Enrollment requests require admin approval
+        </small>
+    </form>
+</div>
+
+<!-- ADMIN PANEL (READ-ONLY) -->
+<div class="card p-4">
+    <h4 class="mb-3">🛠 Admin Panel (View Only)</h4>
+
+    <ul class="list-group">
+        <li class="list-group-item">
+            Total Registered Students: <strong>{{ 120 }}</strong>
+        </li>
+        <li class="list-group-item">
+            Total Courses Offered: <strong>15</strong>
+        </li>
+        <li class="list-group-item">
+            System Status: <span class="badge bg-success">Operational</span>
+        </li>
+    </ul>
 </div>
 
 {% endblock %}
