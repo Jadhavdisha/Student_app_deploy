@@ -1,18 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h2>Welcome, {{ user.name }} 👋</h2>
-<p>Email: {{ user.email }}</p>
+<h2>Welcome {{ user.name }} 👋</h2>
+<p>{{ user.email }}</p>
 
-<hr>
-
-<h4>Your Courses</h4>
-<table class="table table-bordered">
-    <tr>
-        <th>Code</th>
-        <th>Title</th>
-        <th>Credits</th>
-    </tr>
+<table class="table mt-4">
+    <tr><th>Code</th><th>Title</th><th>Credits</th></tr>
     {% for c in courses %}
     <tr>
         <td>{{ c.code }}</td>
